@@ -1,6 +1,9 @@
 spring:
   application:
     name: code-ai-generate-backend
+  profiles:
+      active: local
+
   # mysql
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
