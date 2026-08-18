@@ -8,6 +8,7 @@ import com.guozy.codeaigenerate.model.dto.app.AppQueryRequest;
 import com.guozy.codeaigenerate.model.dto.app.vo.AppVO;
 import com.guozy.codeaigenerate.model.dto.user.vo.UserVO;
 import com.guozy.codeaigenerate.model.entity.User;
+import com.guozy.codeaigenerate.service.UserService;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.guozy.codeaigenerate.model.entity.App;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppService {
 
     @Resource
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @Override
     public AppVO getAppVO(App app) {
