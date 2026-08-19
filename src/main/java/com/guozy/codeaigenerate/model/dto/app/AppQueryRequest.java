@@ -1,4 +1,4 @@
-﻿package com.guozy.codeaigenerate.model.dto.app;
+package com.guozy.codeaigenerate.model.dto.app;
 
 import com.guozy.codeaigenerate.common.PageRequest;
 import lombok.Data;

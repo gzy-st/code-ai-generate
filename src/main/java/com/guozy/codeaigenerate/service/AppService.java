@@ -1,4 +1,4 @@
-﻿package com.guozy.codeaigenerate.service;
+package com.guozy.codeaigenerate.service;
 
 import com.guozy.codeaigenerate.model.dto.app.AppQueryRequest;
 import com.guozy.codeaigenerate.model.dto.app.vo.AppVO;

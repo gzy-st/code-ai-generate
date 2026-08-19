@@ -1,4 +1,4 @@
-﻿package com.guozy.codeaigenerate.core;
+package com.guozy.codeaigenerate.core;
 
 import com.guozy.codeaigenerate.ai.AiCodeGeneratorService;
 import com.guozy.codeaigenerate.ai.model.HtmlCodeResult;

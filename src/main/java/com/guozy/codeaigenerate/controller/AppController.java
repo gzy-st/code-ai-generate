@@ -1,4 +1,4 @@
-﻿package com.guozy.codeaigenerate.controller;
+package com.guozy.codeaigenerate.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;

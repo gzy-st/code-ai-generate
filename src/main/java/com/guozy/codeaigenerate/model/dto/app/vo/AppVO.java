@@ -1,4 +1,4 @@
-﻿package com.guozy.codeaigenerate.model.dto.app.vo;
+package com.guozy.codeaigenerate.model.dto.app.vo;
 
 import com.guozy.codeaigenerate.model.dto.user.vo.UserVO;
 import lombok.Data;
