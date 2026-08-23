@@ -1,4 +1,4 @@
-﻿package com.guozy.codeaigenerate.core;
+package com.guozy.codeaigenerate.core;
 
 import com.guozy.codeaigenerate.model.enums.CodeGenTypeEnum;
 import jakarta.annotation.Resource;

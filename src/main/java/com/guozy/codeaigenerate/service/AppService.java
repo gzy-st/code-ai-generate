@@ -2,9 +2,11 @@ package com.guozy.codeaigenerate.service;
 
 import com.guozy.codeaigenerate.model.dto.app.AppQueryRequest;
 import com.guozy.codeaigenerate.model.dto.app.vo.AppVO;
+import com.guozy.codeaigenerate.model.entity.User;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
 import com.guozy.codeaigenerate.model.entity.App;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -14,6 +16,21 @@ import java.util.List;
  * @author <a href="https://github.com/gzy-st">程序员郭志勇</a>
  */
 public interface AppService extends IService<App> {
+    /**
+     * 部署应用
+     * @param appId
+     * @param loginUser
+     * @return
+     */
+    String deployApp(Long appId, User loginUser);
+    /**
+     * 聊天生成代码
+     * @param appId
+     * @param message
+     * @param loginUser
+     * @return
+     */
+    Flux<String> chatToGenCode(Long appId, String message, User loginUser);
 
     /**
      * 获取脱敏的应用信息

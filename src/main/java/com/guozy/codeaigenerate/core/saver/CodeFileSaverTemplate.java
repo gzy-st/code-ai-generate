@@ -2,6 +2,7 @@ package com.guozy.codeaigenerate.core.saver;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import com.guozy.codeaigenerate.constant.AppConstant;
 import com.guozy.codeaigenerate.exception.BusinessException;
 import com.guozy.codeaigenerate.exception.ErrorCode;
 import com.guozy.codeaigenerate.model.enums.CodeGenTypeEnum;
@@ -16,7 +17,10 @@ import java.nio.charset.StandardCharsets;
  * @createDate 2026/8/18 15:36
  */
 public abstract class CodeFileSaverTemplate<T> {
-    private static final String FILE_SAVE_ROOT_DIR = System.getProperty("user.dir") + "/tmp/code_output";
+    // 文件保存根目录
+    protected static final String FILE_SAVE_ROOT_DIR = AppConstant.CODE_OUTPUT_ROOT_DIR;
+
+//    private static final String FILE_SAVE_ROOT_DIR = System.getProperty("user.dir") + "/tmp/code_output";
     /**
      * 模板方法：保存代码的标准流程
      *
