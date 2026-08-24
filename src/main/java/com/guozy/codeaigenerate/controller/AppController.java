@@ -18,6 +18,7 @@ import com.guozy.codeaigenerate.model.entity.App;
 import com.guozy.codeaigenerate.model.entity.User;
 import com.guozy.codeaigenerate.model.enums.CodeGenTypeEnum;
 import com.guozy.codeaigenerate.service.AppService;
+import com.guozy.codeaigenerate.service.ChatHistoryService;
 import com.guozy.codeaigenerate.service.UserService;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
@@ -47,6 +48,9 @@ public class AppController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ChatHistoryService chatHistoryService;
 
 
     /**
@@ -119,6 +123,30 @@ public class AppController {
     }
 
 
+
+    /**
+     * 获取应用的对话轮次
+     *
+     * @param appId   应用 id
+     * @param request 请求对象
+     * @return 对话轮次
+     */
+    @GetMapping("/chatRound/{appId}")
+    public BaseResponse<Long> getAppChatRound(@PathVariable Long appId, HttpServletRequest request) {
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR);
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        // 判断应用是否存在
+        App app = appService.getById(appId);
+        ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR);
+        // 仅本人或管理员可查看
+        if (!app.getUserId().equals(loginUser.getId()) && !UserConstant.ADMIN_ROLE.equals(loginUser.getUserRole())) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        // 统计对话轮次
+        long chatRound = chatHistoryService.countChatRoundByAppId(appId);
+        return ResultUtils.success(chatRound);
+    }
 
     // ==================== 用户接口 ====================
 

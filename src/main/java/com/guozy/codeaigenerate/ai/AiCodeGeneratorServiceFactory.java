@@ -43,7 +43,7 @@ public class AiCodeGeneratorServiceFactory {
                     MessageWindowChatMemory chatMemory = MessageWindowChatMemory.builder()
                             .id(memoryId)
                             .chatMemoryStore(redisChatMemoryStore)
-                            .maxMessages(20)
+                            .maxMessages(50)
                             .build();
                     // 如果该应用的记忆为空，从数据库加载历史对话
                     if (chatMemory.messages().isEmpty()) {

@@ -65,10 +65,14 @@ public class AppVO implements Serializable {
     private LocalDateTime updateTime;
 
     /**
+     * 对话轮次
+     */
+    private Long chatRound;
+
+    /**
      * 创建用户信息
      */
     private UserVO user;
 
     private static final long serialVersionUID = 1L;
 }
-

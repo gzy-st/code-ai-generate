@@ -99,6 +99,8 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
                     if (StrUtil.isNotBlank(aiResponse)) {
                         chatHistoryService.addChatMessage(appId, aiResponse, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
                     }
+                    // 异步触发智能总结（达到阈值时才会真正执行）
+                    chatHistoryService.trySummarizeIfNeeded(appId);
                 })
                 .doOnError(error -> {
                     // 如果AI回复失败，也要记录错误消息
@@ -172,6 +174,8 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
             UserVO userVO = userService.getUserVO(user);
             appVO.setUser(userVO);
         }
+        // 统计对话轮次
+        appVO.setChatRound(chatHistoryService.countChatRoundByAppId(app.getId()));
         return appVO;
     }
 
@@ -186,10 +190,16 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
                 .collect(Collectors.toSet());
         Map<Long, UserVO> userVOMap = userService.listByIds(userIds).stream()
                 .collect(Collectors.toMap(User::getId, userService::getUserVO));
+        // 批量统计对话轮次，避免 N+1 查询问题
+        Map<Long, Long> chatRoundMap = appList.stream()
+                .map(App::getId)
+                .distinct()
+                .collect(Collectors.toMap(appId -> appId, chatHistoryService::countChatRoundByAppId));
         return appList.stream().map(app -> {
-            AppVO appVO = getAppVO(app);
-            UserVO userVO = userVOMap.get(app.getUserId());
-            appVO.setUser(userVO);
+            AppVO appVO = new AppVO();
+            BeanUtil.copyProperties(app, appVO);
+            appVO.setUser(userVOMap.get(app.getUserId()));
+            appVO.setChatRound(chatRoundMap.getOrDefault(app.getId(), 0L));
             return appVO;
         }).collect(Collectors.toList());
     }

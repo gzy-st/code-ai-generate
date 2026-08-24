@@ -12,6 +12,9 @@ import com.guozy.codeaigenerate.service.UserService;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.guozy.codeaigenerate.model.entity.ChatHistory;
@@ -53,6 +56,25 @@ public class ChatHistoryController {
         Page<ChatHistory> result = chatHistoryService.listAppChatHistoryByPage(appId, pageSize, lastCreateTime, loginUser);
         return ResultUtils.success(result);
     }
+
+    /**
+     * 导出应用对话历史为 Markdown 文件
+     *
+     * @param appId   应用ID
+     * @param request 请求对象
+     * @return Markdown 文件
+     */
+    @GetMapping("/export/{appId}")
+    public ResponseEntity<byte[]> exportChatHistory(@PathVariable Long appId, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        byte[] bytes = chatHistoryService.exportChatHistoryToMarkdown(appId, loginUser);
+        String filename = "chat-history-" + appId + ".md";
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(bytes);
+    }
+
     /**
      * 管理员分页查询所有对话历史
      *
