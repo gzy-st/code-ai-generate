@@ -143,8 +143,12 @@ public class AppController {
         app.setUserId(loginUser.getId());
         // 应用名称暂时为 initPrompt 前 12 位
         app.setAppName(initPrompt.substring(0, Math.min(initPrompt.length(), 12)));
-        // 暂时设置为多文件生成
-        app.setCodeGenType(CodeGenTypeEnum.MULTI_FILE.getValue());
+        // 使用前端传递的 codeGenType，无效值回退到 MULTI_FILE
+        String codeGenType = appAddRequest.getCodeGenType();
+        if (CodeGenTypeEnum.getEnumByValue(codeGenType) == null) {
+            codeGenType = CodeGenTypeEnum.MULTI_FILE.getValue();
+        }
+        app.setCodeGenType(codeGenType);
         // 插入数据库
         boolean result = appService.save(app);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);

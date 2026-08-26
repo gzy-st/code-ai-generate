@@ -8,7 +8,6 @@ import com.guozy.codeaigenerate.ai.model.message.*;
 import com.guozy.codeaigenerate.model.entity.User;
 import com.guozy.codeaigenerate.model.enums.ChatHistoryMessageTypeEnum;
 import com.guozy.codeaigenerate.service.ChatHistoryService;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
