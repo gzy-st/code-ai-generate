@@ -15,26 +15,57 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
 import java.time.Duration;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class WebScreenshotUtils {
 
-    private static final WebDriver webDriver;
+    private static final int DEFAULT_WIDTH = 1600;
+    private static final int DEFAULT_HEIGHT = 900;
 
+    private static final ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();
+
+    // 登记所有创建过的 driver，供 shutdown hook 统一清理
+    private static final Set<WebDriver> ALL_DRIVERS = ConcurrentHashMap.newKeySet();
+
+    // JVM 退出时兜底，quit 所有 Chrome 进程
     static {
-        final int DEFAULT_WIDTH = 1600;
-        final int DEFAULT_HEIGHT = 900;
-        webDriver = initChromeDriver(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log.info("JVM 关闭，清理 {} 个 Chrome 实例", ALL_DRIVERS.size());
+            for (WebDriver d : ALL_DRIVERS) {
+                try {
+                    d.quit();
+                } catch (Exception e) {
+                    log.warn("关闭 Chrome 失败（进程可能已退出）", e);
+                }
+            }
+        }));
     }
-
-    @PreDestroy
-    public void destroy() {
-        webDriver.quit();
+    public static WebDriver getDriver() {
+        WebDriver driver = driverThreadLocal.get();
+        if (driver != null) {
+            try {
+                driver.getCurrentUrl();
+            } catch (Exception e) {
+                log.warn("当前线程的 Chrome 已失效，重建实例", e);
+                try { driver.quit(); } catch (Exception ignored) { }
+                ALL_DRIVERS.remove(driver);
+                driver = null;
+            }
+        }
+        if (driver == null) {
+            driver = initChromeDriver(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+            driverThreadLocal.set(driver);
+            ALL_DRIVERS.add(driver);
+        }
+        return driver;
     }
 
     /**
@@ -131,6 +162,7 @@ public class WebScreenshotUtils {
             return null;
         }
         try {
+            WebDriver driver = getDriver();
             // 创建临时目录
             String rootPath = System.getProperty("user.dir") + File.separator + "tmp" + File.separator + "screenshots"
                     + File.separator + UUID.randomUUID().toString().substring(0, 8);
@@ -140,11 +172,11 @@ public class WebScreenshotUtils {
             // 原始截图文件路径
             String imageSavePath = rootPath + File.separator + RandomUtil.randomNumbers(5) + IMAGE_SUFFIX;
             // 访问网页
-            webDriver.get(webUrl);
+            driver.get(webUrl);
             // 等待页面加载完成
-            waitForPageLoad(webDriver);
+            waitForPageLoad(driver);
             // 截图
-            byte[] screenshotBytes = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
+            byte[] screenshotBytes = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
             // 保存原始图片
             saveImage(screenshotBytes, imageSavePath);
             log.info("原始截图保存成功: {}", imageSavePath);
@@ -158,8 +190,18 @@ public class WebScreenshotUtils {
             return compressedImagePath;
         } catch (Exception e) {
             log.error("网页截图失败: {}", webUrl, e);
+            WebDriver broken = driverThreadLocal.get();
+            if (broken != null) {
+                try { broken.quit(); } catch (Exception ignored) { }
+                ALL_DRIVERS.remove(broken);
+                driverThreadLocal.remove();
+            }
             return null;
         }
     }
-
+    public static void cleanupTempFiles() {
+        log.info("开始清理临时文件");
+        FileUtil.del(System.getProperty("user.dir") + File.separator + "tmp" + File.separator + "screenshots");
+        log.info("临时文件清理完成");
+    }
 }
