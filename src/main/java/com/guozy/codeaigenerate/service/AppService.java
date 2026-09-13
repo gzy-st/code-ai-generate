@@ -1,5 +1,6 @@
 package com.guozy.codeaigenerate.service;
 
+import com.guozy.codeaigenerate.model.dto.app.AppAddRequest;
 import com.guozy.codeaigenerate.model.dto.app.AppQueryRequest;
 import com.guozy.codeaigenerate.model.dto.app.vo.AppVO;
 import com.guozy.codeaigenerate.model.entity.User;
@@ -16,6 +17,13 @@ import java.util.List;
  * @author <a href="https://github.com/gzy-st">程序员郭志勇</a>
  */
 public interface AppService extends IService<App> {
+    /**
+     * 创建应用
+     * @param appAddRequest
+     * @param loginUser
+     * @return
+     */
+    Long createApp(AppAddRequest appAddRequest, User loginUser);
     /**
      * 部署应用
      * @param appId
