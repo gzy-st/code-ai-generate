@@ -23,10 +23,8 @@ public class ReasoningStreamingChatModelConfig {
     }
 
     /**
-     * Vue 项目生成专用流式模型
-     * <p>
-     * Vue 项目生成依赖 FileWriteTool 工具调用写入文件，
-     * 因此必须使用支持 function calling 的模型。
+     * Vue 项目改造后已统一使用 openAiStreamingChatModel，
+     * 本 bean 暂时保留但不再被 AiCodeGeneratorServiceFactory 使用。
      */
     @Bean
     public StreamingChatModel reasoningStreamingChatModel(ChatModelProperties properties) {

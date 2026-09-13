@@ -27,7 +27,14 @@ public class FileWriteTool {
             String content,
             @ToolMemoryId Long appId
     ) {
+        log.info("FileWriteTool 被调用: appId={}, relativeFilePath={}", appId, relativeFilePath);
         try {
+            if (relativeFilePath == null || relativeFilePath.isBlank()) {
+                return "错误: 文件路径不能为空";
+            }
+            if (content == null) {
+                return "错误: 文件内容不能为 null";
+            }
             Path path = Paths.get(relativeFilePath);
             if (!path.isAbsolute()) {
                 // 相对路径处理，创建基于 appId 的项目目录
@@ -49,6 +56,10 @@ public class FileWriteTool {
             return "文件写入成功: " + relativeFilePath;
         } catch (IOException e) {
             String errorMessage = "文件写入失败: " + relativeFilePath + ", 错误: " + e.getMessage();
+            log.error(errorMessage, e);
+            return errorMessage;
+        } catch (Exception e) {
+            String errorMessage = "文件写入异常: " + relativeFilePath + ", 错误: " + e.getClass().getSimpleName() + " - " + e.getMessage();
             log.error(errorMessage, e);
             return errorMessage;
         }

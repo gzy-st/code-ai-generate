@@ -2,6 +2,7 @@ package com.guozy.codeaigenerate.core.saver;
 
 import com.guozy.codeaigenerate.ai.model.HtmlCodeResult;
 import com.guozy.codeaigenerate.ai.model.MultiFileCodeResult;
+import com.guozy.codeaigenerate.ai.model.VueProjectCodeResult;
 import com.guozy.codeaigenerate.exception.BusinessException;
 import com.guozy.codeaigenerate.exception.ErrorCode;
 import com.guozy.codeaigenerate.model.enums.CodeGenTypeEnum;
@@ -15,9 +16,13 @@ import java.io.File;
  * @createDate 2026/8/18 15:46
  */
 public class CodeFileSaverExecutor {
+
     private static final HtmlCodeFileSaverTemplate htmlCodeFileSaver = new HtmlCodeFileSaverTemplate();
 
     private static final MultiFileCodeFileSaverTemplate multiFileCodeFileSaver = new MultiFileCodeFileSaverTemplate();
+
+    private static final VueProjectCodeFileSaverTemplate vueProjectCodeFileSaver = new VueProjectCodeFileSaverTemplate();
+
     /**
      * 执行代码保存
      *
@@ -30,6 +35,7 @@ public class CodeFileSaverExecutor {
         return switch (codeGenType) {
             case HTML -> htmlCodeFileSaver.saveCode((HtmlCodeResult) codeResult, appId);
             case MULTI_FILE -> multiFileCodeFileSaver.saveCode((MultiFileCodeResult) codeResult, appId);
+            case VUE_PROJECT -> vueProjectCodeFileSaver.saveCode((VueProjectCodeResult) codeResult, appId);
             default -> throw new BusinessException(ErrorCode.SYSTEM_ERROR, "不支持的代码生成类型: " + codeGenType);
         };
     }

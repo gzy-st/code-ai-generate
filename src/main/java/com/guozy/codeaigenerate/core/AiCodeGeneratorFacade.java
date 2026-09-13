@@ -8,6 +8,7 @@ import com.guozy.codeaigenerate.ai.model.MultiFileCodeResult;
 import com.guozy.codeaigenerate.ai.model.message.AiResponseMessage;
 import com.guozy.codeaigenerate.ai.model.message.ToolExecutedMessage;
 import com.guozy.codeaigenerate.ai.model.message.ToolRequestMessage;
+import com.guozy.codeaigenerate.core.handler.StreamHandlerExecutor;
 import com.guozy.codeaigenerate.core.parser.CodeParserExecutor;
 import com.guozy.codeaigenerate.core.saver.CodeFileSaverExecutor;
 import com.guozy.codeaigenerate.exception.BusinessException;
@@ -35,6 +36,8 @@ public class AiCodeGeneratorFacade {
     private AiCodeGeneratorService aiCodeGeneratorService;
     @Resource
     private AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
+    @Resource
+    private StreamHandlerExecutor streamHandlerExecutor;
 
     /**
      * 统一入口：根据类型生成并保存代码
@@ -48,8 +51,6 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
-        // 根据 appId 和生成类型获取对应的 AI 服务实例（修复 Bug 1：必须传 codeGenTypeEnum，
-        // 否则 Vue 项目会拿到 HTML 类型的实例，缺少 reasoningStreamingChatModel 和 FileWriteTool 工具）
         AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId, codeGenTypeEnum);
         return switch (codeGenTypeEnum) {
             case HTML -> {
@@ -78,7 +79,6 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
-        // 修复 Bug 1：传 codeGenTypeEnum，确保 Vue 项目使用带工具调用的实例
         AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId, codeGenTypeEnum);
         return switch (codeGenTypeEnum) {
             case HTML -> {
@@ -90,10 +90,10 @@ public class AiCodeGeneratorFacade {
                 yield processCodeStream(codeStream, CodeGenTypeEnum.MULTI_FILE, appId);
             }
             case VUE_PROJECT -> {
-                // 修复 Bug 2：Vue 项目使用 TokenStream 才能触发 FileWriteTool 工具调用
-                // 文件由 FileWriteTool 直接写入磁盘，无需走 processCodeStream 的解析保存逻辑
-                TokenStream tokenStream = aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage);
-                yield processTokenStream(tokenStream);
+                // 改造后：Vue 项目与 HTML/MULTI_FILE 一样，由 AI 直接输出 markdown 代码块，
+                // 后端统一解析保存，不再依赖 FileWriteTool 工具调用
+                Flux<String> codeStream = aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage);
+                yield processCodeStream(codeStream, CodeGenTypeEnum.VUE_PROJECT, appId);
             }
             default -> {
                 String errorMessage = "不支持的生成类型：" + codeGenTypeEnum.getValue();
@@ -103,8 +103,8 @@ public class AiCodeGeneratorFacade {
     }
 
     /**
-     * 通用流式代码处理方法（仅用于 HTML 和 MULTI_FILE）
-     * Vue 项目不走此方法：其文件由 FileWriteTool 工具调用直接写入磁盘
+     * 通用流式代码处理方法
+     * 收集 AI 返回的完整 markdown 内容，流结束后解析并保存文件
      *
      * @param codeStream  代码流
      * @param codeGenType 代码生成类型
@@ -132,12 +132,8 @@ public class AiCodeGeneratorFacade {
     }
 
     /**
-     * 将 TokenStream 转换为 Flux<String>，并传递工具调用信息
-     * Vue 项目专用：将 LangChain4j 的 TokenStream（支持工具调用）
-     * 转换为 JSON 格式的 Flux<String>，供 JsonMessageStreamHandler 解析处理
-     *
-     * @param tokenStream TokenStream 对象
-     * @return Flux<String> 流式响应（每条消息为 StreamMessage 的 JSON 字符串）
+     * 将 TokenStream 转换为 Flux<String>
+     * 保留此方法以兼容可能仍需工具调用的场景（当前 Vue 项目已不走此路径）
      */
     private Flux<String> processTokenStream(TokenStream tokenStream) {
         return Flux.create(sink -> {

@@ -69,7 +69,8 @@ public abstract class CodeFileSaverTemplate<T> {
      */
     protected final void writeToFile(String dirPath, String filename, String content) {
         String filePath = dirPath + File.separator + filename;
-        FileUtil.writeString(content, filePath, StandardCharsets.UTF_8);
+        // content 可能为 null（如 AI 未生成某个文件），统一按空字符串写入
+        FileUtil.writeString(content == null ? "" : content, filePath, StandardCharsets.UTF_8);
     }
     /**
      * 获取代码类型（由子类实现）
