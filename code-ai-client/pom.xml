@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.guozy</groupId>
+        <artifactId>code-ai-generate</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>code-ai-client</artifactId>
+    <name>code-ai-client</name>
+    <description>跨服务 Dubbo 接口定义</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.guozy</groupId>
+            <artifactId>code-ai-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.guozy</groupId>
+            <artifactId>code-ai-model</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

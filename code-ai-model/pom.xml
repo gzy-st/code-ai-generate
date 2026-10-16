@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.guozy</groupId>
+        <artifactId>code-ai-generate</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>code-ai-model</artifactId>
+    <name>code-ai-model</name>
+    <description>数据模型模块：entity / dto / vo / enums（可序列化）</description>
+
+    <dependencies>
+        <!-- MyBatis-Flex 核心注解（@Table/@Column 等），不引入 starter 避免触发数据源自动配置 -->
+        <dependency>
+            <groupId>com.mybatis-flex</groupId>
+            <artifactId>mybatis-flex-core</artifactId>
+            <version>${mybatis-flex.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.guozy</groupId>
+            <artifactId>code-ai-common</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

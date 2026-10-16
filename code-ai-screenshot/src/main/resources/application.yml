@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: code-ai-screenshot
+  profiles:
+    active: local
+server:
+  port: 8127
+  servlet:
+    context-path: /api
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+# springdoc-openapi
+springdoc:
+  group-configs:
+    - group: 'default'
+      packages-to-scan: com.guozy.codeaigenerate.controller
+
+# knife4j
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+# COS 对象存储
+cos:
+  client:
+    host: https://codegenerder-1327623066.cos.ap-beijing.myqcloud.com
+    secretId: ${COS_SECRET_ID:your-secret-id}
+    secretKey: ${COS_SECRET_KEY:your-secret-key}
+    region: ap-beijing
+    bucket: codegenerder-1327623066
+
+# Dubbo
+dubbo:
+  registry:
+    address: nacos://127.0.0.1:8848?username=nacos&password=nacos
+    register-mode: instance
+  protocol:
+    name: tri
+    port: 50052
+  consumer:
+    timeout: 120000
+  provider:
+    timeout: 120000
